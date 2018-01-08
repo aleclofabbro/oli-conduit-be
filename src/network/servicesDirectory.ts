@@ -18,6 +18,12 @@ export const isGlobalFeedList = (msg: Msg): msg is GlobalFeed => msg.name === Se
 
 //
 
+export type Request = GlobalFeed.Request;
+
 export type Msg = GlobalFeed;
 
 export const msg$ = new Subject<Msg>();
+
+export const issueRequest = (request: Request) => {
+  msg$.next();
+};
