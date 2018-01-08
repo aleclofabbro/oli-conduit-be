@@ -1,4 +1,5 @@
 import { ServiceRequest } from './service-request';
+import { Article } from './data';
 
 export type GlobalFeedListRequest = {
   tag?: string
@@ -8,7 +9,7 @@ export type GlobalFeedListRequest = {
   offset?: number
 };
 export type GlobalFeedListValue = {
-  // articles: Data.Article[]
+  articles: Article[]
   articlesCount: number
 };
 export type GlobalFeedListError = {
