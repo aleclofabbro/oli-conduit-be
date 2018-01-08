@@ -1,29 +1,29 @@
-export enum RequestStatus {Pending, Value, Ended, Error}
+export enum RequestStatus {Pending = 'pending', Value = 'value', Ended = 'ended', Error = 'error'}
 type ServiceRequestBase<Request> = {
-  name: string;
   socket: string;
-  status: RequestStatus;
   request: Request;
 };
 type ServiceRequestPending<Request> = ServiceRequestBase<Request> & {
-  status: RequestStatus.Pending;
+  status: 'pending';
 };
 type ServiceRequestEnded<Request> = ServiceRequestBase<Request> & {
-  status: RequestStatus.Ended;
+  status: 'ended';
 };
 type ServiceRequestValue<Request, Value> = ServiceRequestBase<Request> & {
-  status: RequestStatus.Value;
+  status: 'value';
   value: Value;
 };
 type ServiceRequestError<Request, Error> = ServiceRequestBase<Request> & {
-  status: RequestStatus.Error;
+  status: 'error';
   error: Error;
 };
 
-export type ServiceRequest<Request, Value, Error> =
-  ServiceRequestPending<Request> |
-  ServiceRequestValue<Request, Value> |
-  ServiceRequestEnded<Request> |
-  ServiceRequestError<Request, Error>;
+export type ServiceRequest<Name, Request, Value, Error> =
+  (
+    ServiceRequestPending<Request> |
+    ServiceRequestValue<Request, Value> |
+    ServiceRequestEnded<Request> |
+    ServiceRequestError<Request, Error>
+  ) & { name: Name };
 
 export default ServiceRequest;
