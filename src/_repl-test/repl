@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# ts-node --inspect --debug-brk -r .
+ts-node -r .
+./repl
