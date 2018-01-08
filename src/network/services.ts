@@ -6,10 +6,14 @@ export enum Services {
   MyFeedList = 'MyFeedList'
 }
 
-export type _GlobalFeedListService = GlobalFeedListService<'GlobalFeedList'>;
-export type _MyFeedListService = GlobalFeedListService<'MyFeedList'>;
+export type GlobalFeedList = GlobalFeedListService<Services.GlobalFeedList>;
+export const isGlobalFeedList = (msg: Msg): msg is GlobalFeedList => msg.name === Services.GlobalFeedList;
 
-export const msg$ = new Subject<
-  _GlobalFeedListService |
-  _MyFeedListService
->();
+export type MyFeedList = GlobalFeedListService<'MyFeedList'>;
+
+export type Msg =
+  GlobalFeedList |
+  MyFeedList |
+  {name: Services, abort: string};
+
+export const msg$ = new Subject<Msg>();

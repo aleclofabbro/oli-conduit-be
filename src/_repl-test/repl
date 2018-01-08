@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 # ts-node --inspect --debug-brk -r .
-ts-node -r .
-./repl
+ts-node -r ./$1
+./repl $@

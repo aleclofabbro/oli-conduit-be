@@ -6,4 +6,4 @@ export const defaultState: AppState = {
   globalFeeds: []
 };
 
-export const appState$ = new BehaviorSubject<AppState | null>(null);
+export const appState$ = new BehaviorSubject<AppState>(defaultState);
