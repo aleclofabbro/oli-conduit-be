@@ -29,7 +29,7 @@ msg$.next({
   socket: 'xxx',
   status: 'value',
   request: {limit: 2},
-  value: {articlesCount: 1}
+  value: {articlesCount: 1, articles: []}
 });
 // // // tslint:disable-next-line:whitespace
 // // // tslint:disable-next-line:semicolon
