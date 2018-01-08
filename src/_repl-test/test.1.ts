@@ -1,8 +1,8 @@
+import { RequestStatus } from '../types/service-request';
 import './';
-import { Services } from './../network/services';
 import { appState$ } from './../network/appState';
 import { GlobalFeedListValue, GlobalFeedListRequest } from './../types/services';
-import { isGlobalFeedList, msg$ } from '../network/services';
+import { ServicesNames, isGlobalFeedList, msg$, isServiceRequestIssued } from '../network/services-directory';
 // tslint:disable:no-console
 // tslint:disable:no-any
 
@@ -29,6 +29,8 @@ const getGlobalFeed = (req: GlobalFeedListRequest): GlobalFeedListValue[] => [{
 
 msg$
   .filter(isGlobalFeedList)
+  .filter(isServiceRequestIssued)
+  .do(x => null)
   .mergeMap(getGlobalFeed)
   .delay(1000)
   .subscribe(msg => appState$.next({
@@ -37,8 +39,8 @@ msg$
   }));
 
 msg$.next({
-  name: Services.GlobalFeedList,
+  name: ServicesNames.GlobalFeedList,
   socket: '',
-  status: 'pending',
+  status: RequestStatus.Issued,
   request: {limit: 1}
 });

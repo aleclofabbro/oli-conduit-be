@@ -25,5 +25,3 @@ export type ServiceRequest<Name, Request, Value, Error> =
     ServiceRequestEnded<Request> |
     ServiceRequestError<Request, Error>
   ) & { name: Name };
-
-export default ServiceRequest;

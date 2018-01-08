@@ -1,4 +1,3 @@
-import { ServiceRequest } from './service-request';
 import { Article } from './data';
 
 export type GlobalFeedListRequest = {
@@ -15,9 +14,3 @@ export type GlobalFeedListValue = {
 export type GlobalFeedListError = {
   msg: string
 };
-export type GlobalFeedListService<Name> = ServiceRequest<
-  Name,
-  GlobalFeedListRequest,
-  GlobalFeedListValue,
-  GlobalFeedListError
->;
