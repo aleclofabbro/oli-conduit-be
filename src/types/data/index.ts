@@ -1,9 +1,4 @@
-export interface AppState {
-  globalFeeds: Article[];
-  myFeeds: Article[];
-}
-
-export interface Article {
+export type Article = {
   slug: string;
   title: string;
   description: string;
@@ -14,11 +9,11 @@ export interface Article {
   favorited: boolean;
   favoritesCount: number;
   author: Author;
-}
+};
 
-export interface Author {
+export type Author = {
   username: string;
   bio: string;
   image: string;
   following: boolean;
-}
+};

@@ -1,16 +1,16 @@
-import { Article } from './data';
+import { Article } from '../data/index';
 
-export type GlobalFeedListRequest = {
+export type Request = {
   tag?: string
   author?: string
   favorited?: string
   limit?: number
   offset?: number
 };
-export type GlobalFeedListValue = {
+export type Value = {
   articles: Article[]
   articlesCount: number
 };
-export type GlobalFeedListError = {
+export type Error = {
   msg: string
 };

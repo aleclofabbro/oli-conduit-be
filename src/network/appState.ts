@@ -1,5 +1,10 @@
 import { BehaviorSubject } from '@reactivex/rxjs';
-import { AppState } from '../types/data';
+import { Article } from '../types/data/index';
+
+export type AppState = {
+  globalFeeds: Article[];
+  myFeeds: Article[];
+};
 
 export const defaultState: AppState = {
   myFeeds: [],

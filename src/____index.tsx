@@ -1,6 +1,6 @@
-import { GlobalFeedListService } from './types/services';
-import { msg$ } from './network/services-directory';
-// import { GlobalFeedListService } from './types/services';
+import { GlobalFeedListService } from './types/services/globalFeed';
+import { msg$ } from './network/servicesDirectory';
+// import { GlobalFeedListService } from './types/services/globalFeed';
 // import { RequestStatus } from './types/services-directory';
 import appState$ from './network/appState';
 

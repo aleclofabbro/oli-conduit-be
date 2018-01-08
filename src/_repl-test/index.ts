@@ -1,11 +1,8 @@
 import * as util from 'util';
 import { diffString } from 'json-diff';
-import { GlobalFeedListService } from '../types/services';
-import { defaultState, appState$ } from '../network/appState';
+import { appState$ } from '../network/appState';
 
-import { msg$ } from '../network/services-directory';
-// import { GlobalFeedListService } from './types/services';
-// import { RequestStatus } from './types/service-request';
+import { msg$ } from '../network/servicesDirectory';
 
 // tslint:disable-next-line:no-any
 const log = (tag: any) => (val: any) => {
