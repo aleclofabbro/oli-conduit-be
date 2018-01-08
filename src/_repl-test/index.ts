@@ -1,6 +1,7 @@
 import * as util from 'util';
+import { diffString } from 'json-diff';
 import { GlobalFeedListService } from '../types/services';
-import appState$ from '../network/appState';
+import { defaultState, appState$ } from '../network/appState';
 
 import { msg$ } from '../network/services';
 // import { GlobalFeedListService } from './types/services';
@@ -10,7 +11,7 @@ import { msg$ } from '../network/services';
 const log = (tag: any) => (val: any) => {
   const date = new Date();
   const dateTag = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-  const _val = util.inspect(val, {depth: 8, colors: true});
+  const _val = typeof val === 'object' ? util.inspect(val, {depth: 8, colors: true}) : val;
   const msg = `
 #########################
 ## [${tag}] ${dateTag}
@@ -23,12 +24,13 @@ ${_val}
   return `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
 };
 appState$
-  .subscribe(state => {
-    log('STATE')(state);
+  .pairwise()
+  .subscribe(states => {
+    log('STATE')(diffString(states[0], states[1]));
     // tslint:disable-next-line:no-any
-    (global as any).state = state;
+    (global as any).state = states[1];
   });
-
+appState$.next(defaultState);
 msg$.subscribe(log('MSG'));
 const x: GlobalFeedListService<'GlobalFeedList'> = {
 // const x = {
@@ -44,9 +46,9 @@ msg$.next({
   socket: 'xxx',
   status: 'value',
   request: {limit: 2},
-  value: {articlesCount: 1}
+  value: {articlesCount: 1, articles: []}
 });
 // // // tslint:disable-next-line:whitespace
 // // // tslint:disable-next-line:semicolon
 // tslint:disable-next-line:no-any
-(global as any).x = x; (global as any).msg$ = msg$;
+(global as any).appState$ = appState$; (global as any).msg$ = msg$;
