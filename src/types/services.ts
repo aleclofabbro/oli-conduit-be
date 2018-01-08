@@ -1,4 +1,4 @@
-import { ServiceRequest /*, RequestStatus*/ } from './service-request';
+import { ServiceRequest } from './service-request';
 
 export type GlobalFeedListRequest = {
   tag?: string
@@ -14,22 +14,9 @@ export type GlobalFeedListValue = {
 export type GlobalFeedListError = {
   msg: string
 };
-export type GlobalFeedListService/*<Name>*/ = ServiceRequest<
-  // Name,
+export type GlobalFeedListService<Name> = ServiceRequest<
+  Name,
   GlobalFeedListRequest,
   GlobalFeedListValue,
   GlobalFeedListError
 >;
-
-// const x: GlobalFeedListService/*<'serv'>*/ = {
-//   name: 'serv',
-//   socket: 'xxx',
-//   status: RequestStatus.Error,
-//   request: {limit: 2},
-//   error: {msg: '1'}
-// };
-
-// // // tslint:disable-next-line:semicolon
-// // // tslint:disable-next-line:whitespace
-// // // tslint:disable-next-line:semicolon
-// const y = x
