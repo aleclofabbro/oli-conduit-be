@@ -1,5 +1,5 @@
 import { GlobalFeedListService } from './types/services/globalFeed';
-import { msg$ } from './network/servicesDirectory';
+import { msgSubj$ } from './network/servicesDirectory';
 // import { GlobalFeedListService } from './types/services/globalFeed';
 // import { RequestStatus } from './types/services-directory';
 import appState$ from './network/appState';
@@ -14,7 +14,7 @@ appState$
     (global as any).state = state;
   });
 
-msg$.subscribe(console.log);
+msgSubj$.subscribe(console.log);
 const x: GlobalFeedListService<'GlobalFeedList'> = {
 // const x = {
   name: 'GlobalFeedList',
@@ -23,8 +23,8 @@ const x: GlobalFeedListService<'GlobalFeedList'> = {
   request: {limit: 2},
   error: {msg: '1'}
 };
-msg$.next(x);
-msg$.next({
+msgSubj$.next(x);
+msgSubj$.next({
   name: 'MyFeedList',
   socket: 'xxx',
   status: 'value',

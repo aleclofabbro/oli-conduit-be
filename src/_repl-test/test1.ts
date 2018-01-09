@@ -2,34 +2,65 @@
 import { Observable } from '@reactivex/rxjs/dist/package/Rx';
 import './';
 import { appState$ } from './../network/appState';
-import { Value, Request } from '../types/services/globalFeed';
+import * as GlobalFeed from '../types/services/globalFeed';
 import { RequestStatus } from '../types/lib/serviceRequest';
-import { isGlobalFeed, isServiceRequestIssued, issueRequest, msg$, ServicesNames, manageRequest } from '../network/servicesDirectory';
+import { GlobalFeedHandlerMsg } from '../network/servicesDirectory';
+import {
+  // isGlobalFeed,
+  isServiceRequestIssued,
+  issueRequest,
+  // msg$,
+  ServicesNames,
+  manageRequest
+} from '../network/servicesDirectory';
 // tslint:disable:no-console tslint:disable:no-any
 
-const getGlobalFeed = (req: Request) => Observable.of<Value>({
-    articles: [
-      {
-        slug: 'string',
-        title: 'string',
-        description: 'string',
-        body: 'string',
-        tagList: ['string[]'],
-        createdAt: 'string',
-        updatedAt: 'string',
-        favorited: true,
-        favoritesCount: 1,
-        author: {
-          username: 'string',
-          bio: 'string',
-          image: 'string',
-          following: true
+const getGlobalFeed = (req: GlobalFeed.Request) => Observable.from<GlobalFeedHandlerMsg>([
+  {
+    status: RequestStatus.Value,
+    value: {
+      articles: [
+        {
+          slug: 'string',
+          title: 'string',
+          description: 'string',
+          body: 'string',
+          tagList: ['string[]'],
+          createdAt: 'string',
+          updatedAt: 'string',
+          favorited: true,
+          favoritesCount: 1,
+          author: {
+            username: 'string',
+            bio: 'string',
+            image: 'string',
+            following: true
+          }
         }
-      }
-    ],
-    articlesCount: req.limit || 0
-  })
-.delay(1000);
+      ],
+      articlesCount: req.limit || 0
+    }
+  },
+    // ERR:
+  {
+    status: RequestStatus.Error,
+    error: {
+      msg: 'WWWW'
+    }
+  },
+    // ERR:
+  {
+    status: RequestStatus.Ended,
+  },
+  {
+    status: RequestStatus.Value,
+    value: {
+      articles: [],
+      articlesCount: req.limit || 0
+    }
+  }
+])
+// .delay(1000);
 
 isServiceRequestIssued({
   id: '',
@@ -44,7 +75,7 @@ isServiceRequestIssued({
   }
 });
 
-manageRequest([ServicesNames.GlobalFeed, getGlobalFeed]);
+manageRequest({service: ServicesNames.GlobalFeed, handler: getGlobalFeed});
   // .filter(isGlobalFeed)
   // .filter(isServiceRequestIssued)
   // .do (x => null)
@@ -52,18 +83,18 @@ manageRequest([ServicesNames.GlobalFeed, getGlobalFeed]);
   // // .subscribe(msg$)
   // .subscribe(msg => );
 
-issueRequest([ServicesNames.GlobalFeed, {
+issueRequest({service: ServicesNames.GlobalFeed, request: {
   limit: 3
-}])
+}})
 .subscribe(
   msg => {
-    console.log('VAL', msg);
+    console.log('---- VAL', msg);
     appState$.next({
       ...appState$.value,
       // tslint:disable-next-line:no-any
-      globalFeeds: (msg as any).value.articles
+      globalFeeds: msg.articles
     });
   },
-  err => console.log('ERR', err),
-  () => console.log('END')
+  err => console.log('---- ERR'),
+  () => console.log('----- END')
 );

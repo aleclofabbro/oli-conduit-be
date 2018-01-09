@@ -1,27 +1,34 @@
-type ServiceRequestBase<Request> = {
+interface ServiceRequestBase<Request> {
   id: string;
   request: Request;
-};
-export type ServiceRequestIssued<Request> = ServiceRequestBase<Request> & {
+}
+export interface ServiceRequestIssued<Request> extends ServiceRequestBase<Request> {
   status: RequestStatus.Issued;
-};
-type ServiceRequestEnded<Request> = ServiceRequestBase<Request> & {
+}
+export interface ServiceRequestEnded<Request> extends ServiceRequestBase<Request> {
   status: RequestStatus.Ended;
-};
-type ServiceRequestValue<Request, Value> = ServiceRequestBase<Request> & {
+}
+interface ServiceRequestValue<Request, Value> extends ServiceRequestBase<Request> {
   status: RequestStatus.Value;
   value: Value;
-};
-type ServiceRequestError<Request, Error> = ServiceRequestBase<Request> & {
+}
+interface ServiceRequestError<Request, Error> extends ServiceRequestBase<Request> {
   status: RequestStatus.Error;
   error: Error;
-};
+}
 
 export enum RequestStatus {Issued = 'issued', Value = 'value', Ended = 'end', Error = 'error'}
 export type ServiceRequest<Name, Request, Value, Error> =
-(
-  ServiceRequestIssued<Request> |
-  ServiceRequestValue<Request, Value> |
-  ServiceRequestEnded<Request> |
-  ServiceRequestError<Request, Error>
-) & { name: Name };
+  (
+    ServiceRequestIssued<Request> |
+    ServiceRequestValue<Request, Value> |
+    ServiceRequestEnded<Request> |
+    ServiceRequestError<Request, Error>
+  ) & { name: Name };
+
+// const x: ServiceRequestEnded<number> = {
+//   status: RequestStatus.Ended,
+//   id: 'ddd',
+//   request: 1
+// };
+// x=x
