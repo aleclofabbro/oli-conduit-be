@@ -1,8 +1,8 @@
 type ServiceRequestBase<Request> = {
-  socket: string;
+  id: string;
   request: Request;
 };
-type ServiceRequestIssued<Request> = ServiceRequestBase<Request> & {
+export type ServiceRequestIssued<Request> = ServiceRequestBase<Request> & {
   status: RequestStatus.Issued;
 };
 type ServiceRequestEnded<Request> = ServiceRequestBase<Request> & {
