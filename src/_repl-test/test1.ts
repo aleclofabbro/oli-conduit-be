@@ -41,14 +41,14 @@ const getGlobalFeed = (req: GlobalFeed.Request) => Observable.from<GlobalFeedHan
       articlesCount: req.limit || 0
     }
   },
-    // ERR:
+  // ERR:
   {
     status: RequestStatus.Error,
     error: {
       msg: 'WWWW'
     }
   },
-    // ERR:
+  // ERR:
   {
     status: RequestStatus.Ended,
   },
@@ -75,18 +75,20 @@ isServiceRequestIssued({
   }
 });
 
-manageRequest({service: ServicesNames.GlobalFeed, handler: getGlobalFeed});
-  // .filter(isGlobalFeed)
-  // .filter(isServiceRequestIssued)
-  // .do (x => null)
-  // .mergeMap(getGlobalFeed)
-  // // .subscribe(msg$)
-  // .subscribe(msg => );
+manageRequest({ service: ServicesNames.GlobalFeed, handler: getGlobalFeed });
+// .filter(isGlobalFeed)
+// .filter(isServiceRequestIssued)
+// .do (x => null)
+// .mergeMap(getGlobalFeed)
+// // .subscribe(msg$)
+// .subscribe(msg => );
 
-issueRequest({service: ServicesNames.GlobalFeed, request: {
-  limit: 3
-}})
-.subscribe(
+issueRequest({
+  service: ServicesNames.GlobalFeed, request: {
+    limit: 3
+  }
+})
+  .subscribe(
   msg => {
     console.log('---- VAL', msg);
     appState$.next({
@@ -97,4 +99,4 @@ issueRequest({service: ServicesNames.GlobalFeed, request: {
   },
   err => console.log('---- ERR'),
   () => console.log('----- END')
-);
+  );

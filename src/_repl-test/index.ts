@@ -8,7 +8,7 @@ import { msg$ } from '../network/servicesDirectory';
 const log = (tag: any) => (val: any) => {
   const date = new Date();
   const dateTag = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
-  const _val = typeof val === 'object' ? util.inspect(val, {depth: 8, colors: true}) : val;
+  const _val = typeof val === 'object' ? util.inspect(val, { depth: 8, colors: true }) : val;
   const msg = `
 #########################
 ## [${tag}] ${dateTag}

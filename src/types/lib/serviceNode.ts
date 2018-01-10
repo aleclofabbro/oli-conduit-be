@@ -1,5 +1,5 @@
-import { Observable, Subject } from '@reactivex/rxjs/dist/package/Rx';
-// tslint:disable:no-console
+import { Subject } from '@reactivex/rxjs/dist/package/Rx';
+import { Observable } from '@reactivex/rxjs/dist/package/Observable';
 export type RequestHandler<Request, Value, Error> = {
   (
     request: Request,
@@ -9,9 +9,12 @@ export type RequestHandler<Request, Value, Error> = {
   ): void;
 };
 export interface ResponseWrapper<Request> {
-    name: string;
-    session: string;
-    request: Request;
+  serviceName: string;
+  session: string;
+  request: Request;
+}
+export interface ResponseIssued<Request> extends ResponseWrapper<Request> {
+  status: RequestStatus.Issued;
 }
 export interface ResponseValue<Request, Value> extends ResponseWrapper<Request> {
   status: RequestStatus.Value;
@@ -26,82 +29,81 @@ export interface ResponseError<Request, Error> extends ResponseWrapper<Request> 
 }
 
 export enum RequestStatus {
-  Value,
-  Error,
-  Completed
+  Issued = 'Issued',
+  Value = 'Value',
+  Error = 'Error',
+  Completed = 'Completed'
 }
-export function serviceNode<Request, Value, Error>(name: string) {
-  type LocalRequestHandler = RequestHandler<Request, Value, Error>;
-  type LocalRequest = {session: string, request: Request};
+export function serviceNode<Request, Value, Error>(
+  serviceName: string,
+  reqHandler: RequestHandler<Request, Value, Error>
+) {
+  type Out = Observable<LocalResponseIssued |
+    LocalResponseValue |
+    LocalResponseCompleted |
+    LocalResponseError> & { request: RequestFn };
+  type LocalResponseIssued = ResponseIssued<Request>;
   type LocalResponseValue = ResponseValue<Request, Value>;
   type LocalResponseCompleted = ResponseCompleted<Request>;
   type LocalResponseError = ResponseError<Request, Error>;
-  const request$ = new Subject<LocalRequest>();
-  const doRequest = (request: Request, session?: string) => {
-    session = `${name}:${session || Math.random()}`;
+  interface RequestFn {
+    (request: Request, session?: string): string;
+  }
+  const request$ = new Subject<LocalResponseIssued>();
+  const doRequest: RequestFn = (request: Request, session?: string) => {
+    session = `${serviceName}:${session || Math.random()}`;
     request$.next({
+      serviceName,
+      session,
       request,
-      session
+      status: RequestStatus.Issued
     });
     return session;
   };
-  const value$ = new Subject<LocalResponseValue | LocalResponseError | LocalResponseCompleted>();
-  const manage = (reqHandler: LocalRequestHandler): Observable<Value> =>
-    request$.mergeMap(localRequest => {
-      const {session, request} = localRequest;
-      const baseResp = {
-        name,
-        session,
-        request
-      };
-      const responseSubj$ = new Subject<Value>();
-      // responseSubj$.subscribe({
-      //   next: (s: Value) => console.log('+++V'),
-      //   error: (d) => console.log('+++E'),
-      //   complete: () => console.log('+++C')
-      // });
-      const isStillRunning = () => !responseSubj$.closed && !responseSubj$.isStopped;
-      const handlerValue = (value: Value) => {
-        // console.log('---V', isStillRunning());
-        if (isStillRunning()) {
-          value$.next({
-            ...baseResp,
-            status: RequestStatus.Value,
-            value
-          });
-        }
-        responseSubj$.next(value);
-      };
-      const handlerError = (error: Error) => {
-        // console.log('---E', isStillRunning());
-        if (isStillRunning()) {
-          value$.next({
-            ...baseResp,
-            status: RequestStatus.Error,
-            error
-          });
-        }
-        responseSubj$.error(error);
-      };
-      const handlerCompleted = () => {
-        // console.log('---C', isStillRunning());
-        if (isStillRunning()) {
-          value$.next({
-            ...baseResp,
-            status: RequestStatus.Completed
-          });
-        }
+  const value$ = request$.mergeMap(localRequest => {
+    const { session, request } = localRequest;
+    const baseResp = {
+      serviceName,
+      session,
+      request
+    };
+    const responseSubj$ = new Subject<LocalResponseValue | LocalResponseError | LocalResponseCompleted>();
+    const isStillRunning = () => !responseSubj$.closed && !responseSubj$.isStopped;
+    const handlerValue = (value: Value) => {
+      if (isStillRunning()) {
+        responseSubj$.next({
+          ...baseResp,
+          status: RequestStatus.Value,
+          value
+        });
+      }
+    };
+    const handlerError = (error: Error) => {
+      if (isStillRunning()) {
+        responseSubj$.next({
+          ...baseResp,
+          status: RequestStatus.Error,
+          error
+        });
         responseSubj$.complete();
-      };
-      reqHandler(request, handlerValue, handlerError, handlerCompleted);
-
-      return responseSubj$
-        .asObservable();
+      }
+    };
+    const handlerCompleted = () => {
+      if (isStillRunning()) {
+        responseSubj$.next({
+          ...baseResp,
+          status: RequestStatus.Completed
+        });
+        responseSubj$.complete();
+      }
+    };
+    reqHandler(request, handlerValue, handlerError, handlerCompleted);
+    return responseSubj$;
+  });
+  const out$: Out = Object.assign(
+    Observable.merge(value$, request$),
+    {
+      request: doRequest
     });
-  return {
-    value$,
-    request$,
-    doRequest,
-    manage
-  };
+  return out$;
 }
