@@ -5,5 +5,5 @@ import {
   ArticleError
 } from '../types/services/Article';
 
-const articleNode$ = serviceNode<ArticleRequest, ArticleValue, ArticleError>();
+const articleNode$ = serviceNode<ArticleRequest, ArticleValue, ArticleError>('articles');
 export default articleNode$;
