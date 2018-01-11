@@ -34,31 +34,44 @@ export enum RequestStatus {
   Error = 'Error',
   Completed = 'Completed'
 }
-export function serviceNode<Request, Value, Error>(
+export function build<Request, Value, Error>(
   serviceName: string,
   reqHandler: RequestHandler<Request, Value, Error>
 ) {
-  type Out = Observable<LocalResponseIssued |
+  type ResponseItems =
     LocalResponseValue |
     LocalResponseCompleted |
-    LocalResponseError> & { request: RequestFn };
+    LocalResponseError;
+  type Response = Observable<ResponseItems> & { session: string };
+  type ServiceNodeItems = LocalResponseIssued | ResponseItems;
+  type ServiceNode = Observable<ServiceNodeItems> & { issueRequest: RequestFn };
   type LocalResponseIssued = ResponseIssued<Request>;
   type LocalResponseValue = ResponseValue<Request, Value>;
   type LocalResponseCompleted = ResponseCompleted<Request>;
   type LocalResponseError = ResponseError<Request, Error>;
   interface RequestFn {
-    (request: Request, session?: string): string;
+    (request: Request, session?: string): Response;
   }
   const request$ = new Subject<LocalResponseIssued>();
-  const doRequest: RequestFn = (request: Request, session?: string) => {
-    session = `${serviceName}:${session || Math.random()}`;
+  const issueRequest: RequestFn = (request: Request, _session?: string) => {
+    const session = `${serviceName}:${_session || Math.random()}`;
+    // setTimeout(() => {
     request$.next({
       serviceName,
       session,
       request,
       status: RequestStatus.Issued
     });
-    return session;
+    // }, 0);
+    const session$ = value$
+      .filter(value => value.session === session);
+    const valueResponse$ = session$
+      .takeWhile(value => value.status === RequestStatus.Value);
+    const lastResponse$ = session$
+      .filter(value => value.status === RequestStatus.Completed || value.status === RequestStatus.Error)
+      .take(1);
+    const response$ = Observable.merge(valueResponse$, lastResponse$);
+    return Object.assign(response$, { session });
   };
   const value$ = request$.mergeMap(localRequest => {
     const { session, request } = localRequest;
@@ -99,11 +112,12 @@ export function serviceNode<Request, Value, Error>(
     };
     reqHandler(request, handlerValue, handlerError, handlerCompleted);
     return responseSubj$;
-  });
-  const out$: Out = Object.assign(
+  }).publish();
+  value$.connect();
+  const serviceNode$: ServiceNode = Object.assign(
     Observable.merge(value$, request$),
     {
-      request: doRequest
+      issueRequest
     });
-  return out$;
+  return serviceNode$;
 }

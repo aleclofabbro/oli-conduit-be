@@ -1,40 +1,17 @@
 import { Observable } from '@reactivex/rxjs/dist/package/Rx';
-import { serviceNode, RequestHandler } from '../types/lib/serviceNode';
+import axios from 'axios';
+import { build, RequestHandler } from '../types/lib/serviceNode';
 import {
   ArticleRequest,
   ArticleValue,
   ArticleError
 } from '../types/services/Article';
 type ArticleRequestHandler = RequestHandler<ArticleRequest, ArticleValue, ArticleError>;
-// tslint:disable-next-line:no-console no-any
-const log = (tag: string) => (obj?: any) => console.log(tag, obj);
+const baseUrl = 'https://conduit.productionready.io/api';
+export const articleRequestHandler: ArticleRequestHandler =
+  (slug, val, error, end) => Observable.fromPromise(axios.get<ArticleValue>(`${baseUrl}/articles/${slug}`))
+    .map(resp => resp.data)
+    .subscribe(val, error, end);
 
-export const articleRequestHandler: ArticleRequestHandler = (request, val, error, end) => {
-  log('Handler')('req');
-  const msgs = [
-    // () => error({
-    //   articleError: 1
-    // }),
-    // () => end(),
-    () => val({
-      article: {
-        title: `#${request.articleReq}`
-      }
-    }),
-    // () => end(),
-    () => val(`@${request.articleReq}`),
-    // () => error({
-    //   articleError: 1
-    // }),
-    () => end(),
-    () => end(),
-  ];
-  Observable
-    .interval(200)
-    .delay(100)
-    .take(msgs.length)
-    .subscribe(n => msgs[n]());
-
-};
-export const articleNode$ = serviceNode<ArticleRequest, ArticleValue, ArticleError>('articles', articleRequestHandler);
+export const articleNode$ = build<ArticleRequest, ArticleValue, ArticleError>('articles', articleRequestHandler);
 export default articleNode$;

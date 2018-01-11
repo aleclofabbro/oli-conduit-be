@@ -1,7 +1,23 @@
-export type Article = {
-  title: string;
-};
+interface Article {
+  article: Article;
+}
 
-export type Amount = {
-  val: number;
-};
+interface Article {
+  slug: string;
+  title: string;
+  description: string;
+  body: string;
+  tagList: string[];
+  createdAt: string;
+  updatedAt: string;
+  favorited: boolean;
+  favoritesCount: number;
+  author: Author;
+}
+
+interface Author {
+  username: string;
+  bio: string;
+  image: string;
+  following: boolean;
+}
